@@ -21,6 +21,9 @@
     <link rel="stylesheet" href="{{ versioned_asset('dist/styles.css') }}">
 
     <!-- Icons -->
+
+    <link id="favicon" rel="icon" href="{{ asset('icon.ico') }}" type="image/x-icon" />
+
     <link rel="icon" type="image/png" sizes="256x256" href="{{ setting('app-icon') ?: url('/icon.png') }}">
     <link rel="icon" type="image/png" sizes="180x180" href="{{ setting('app-icon-180') ?: url('/icon-180.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ setting('app-icon-180') ?: url('/icon-180.png') }}">

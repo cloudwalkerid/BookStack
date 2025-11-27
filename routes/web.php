@@ -326,51 +326,55 @@ Route::middleware('guest')->group(function () {
 Route::delete('/mfa/{method}/remove', [AccessControllers\MfaController::class, 'remove'])->middleware('auth');
 
 // Social auth routes
-Route::get('/login/service/{socialDriver}', [AccessControllers\SocialController::class, 'login']);
-Route::get('/login/service/{socialDriver}/callback', [AccessControllers\SocialController::class, 'callback']);
-Route::post('/login/service/{socialDriver}/detach', [AccessControllers\SocialController::class, 'detach'])->middleware('auth');
-Route::get('/register/service/{socialDriver}', [AccessControllers\SocialController::class, 'register']);
+// Route::get('/login/service/{socialDriver}', [AccessControllers\SocialController::class, 'login']);
+// Route::get('/login/service/{socialDriver}/callback', [AccessControllers\SocialController::class, 'callback']);
+// Route::post('/login/service/{socialDriver}/detach', [AccessControllers\SocialController::class, 'detach'])->middleware('auth');
+// Route::get('/register/service/{socialDriver}', [AccessControllers\SocialController::class, 'register']);
 
 // Login/Logout routes
-Route::get('/login', [AccessControllers\LoginController::class, 'getLogin']);
-Route::post('/login', [AccessControllers\LoginController::class, 'login']);
-Route::post('/logout', [AccessControllers\LoginController::class, 'logout']);
-Route::get('/register', [AccessControllers\RegisterController::class, 'getRegister']);
-Route::get('/register/confirm', [AccessControllers\ConfirmEmailController::class, 'show']);
-Route::get('/register/confirm/awaiting', [AccessControllers\ConfirmEmailController::class, 'showAwaiting']);
-Route::post('/register/confirm/resend', [AccessControllers\ConfirmEmailController::class, 'resend']);
-Route::get('/register/confirm/{token}', [AccessControllers\ConfirmEmailController::class, 'showAcceptForm']);
-Route::post('/register/confirm/accept', [AccessControllers\ConfirmEmailController::class, 'confirm'])->middleware('throttle:public');
-Route::post('/register', [AccessControllers\RegisterController::class, 'postRegister'])->middleware('throttle:public');
+// Route::get('/login', [AccessControllers\LoginController::class, 'getLogin']);
+// Route::post('/login', [AccessControllers\LoginController::class, 'login']);
+// Route::post('/logout', [AccessControllers\LoginController::class, 'logout']);
+// Route::get('/register', [AccessControllers\RegisterController::class, 'getRegister']);
+// Route::get('/register/confirm', [AccessControllers\ConfirmEmailController::class, 'show']);
+// Route::get('/register/confirm/awaiting', [AccessControllers\ConfirmEmailController::class, 'showAwaiting']);
+// Route::post('/register/confirm/resend', [AccessControllers\ConfirmEmailController::class, 'resend']);
+// Route::get('/register/confirm/{token}', [AccessControllers\ConfirmEmailController::class, 'showAcceptForm']);
+// Route::post('/register/confirm/accept', [AccessControllers\ConfirmEmailController::class, 'confirm'])->middleware('throttle:public');
+// Route::post('/register', [AccessControllers\RegisterController::class, 'postRegister'])->middleware('throttle:public');
 
-// SAML routes
-Route::post('/saml2/login', [AccessControllers\Saml2Controller::class, 'login']);
-Route::post('/saml2/logout', [AccessControllers\Saml2Controller::class, 'logout']);
-Route::get('/saml2/metadata', [AccessControllers\Saml2Controller::class, 'metadata']);
-Route::get('/saml2/sls', [AccessControllers\Saml2Controller::class, 'sls']);
-Route::post('/saml2/acs', [AccessControllers\Saml2Controller::class, 'startAcs'])->withoutMiddleware([
-    StartSession::class,
-    ShareErrorsFromSession::class,
-    VerifyCsrfToken::class,
-]);
-Route::get('/saml2/acs', [AccessControllers\Saml2Controller::class, 'processAcs']);
+Route::get('/login', [AccessControllers\SSOController::class, 'showLoginForm'])->name('login');
+Route::get('/sso', [AccessControllers\SSOController::class, 'sso'])->name('sso');
+Route::get('/logout', [AccessControllers\SSOController::class, 'logout'])->name('logout');
 
-// OIDC routes
-Route::post('/oidc/login', [AccessControllers\OidcController::class, 'login']);
-Route::get('/oidc/callback', [AccessControllers\OidcController::class, 'callback']);
-Route::post('/oidc/logout', [AccessControllers\OidcController::class, 'logout']);
+// // SAML routes
+// Route::post('/saml2/login', [AccessControllers\Saml2Controller::class, 'login']);
+// Route::post('/saml2/logout', [AccessControllers\Saml2Controller::class, 'logout']);
+// Route::get('/saml2/metadata', [AccessControllers\Saml2Controller::class, 'metadata']);
+// Route::get('/saml2/sls', [AccessControllers\Saml2Controller::class, 'sls']);
+// Route::post('/saml2/acs', [AccessControllers\Saml2Controller::class, 'startAcs'])->withoutMiddleware([
+//     StartSession::class,
+//     ShareErrorsFromSession::class,
+//     VerifyCsrfToken::class,
+// ]);
+// Route::get('/saml2/acs', [AccessControllers\Saml2Controller::class, 'processAcs']);
 
-// User invitation routes
-Route::get('/register/invite/{token}', [AccessControllers\UserInviteController::class, 'showSetPassword'])->middleware('throttle:public');
-Route::post('/register/invite/{token}', [AccessControllers\UserInviteController::class, 'setPassword'])->middleware('throttle:public');
+// // OIDC routes
+// Route::post('/oidc/login', [AccessControllers\OidcController::class, 'login']);
+// Route::get('/oidc/callback', [AccessControllers\OidcController::class, 'callback']);
+// Route::post('/oidc/logout', [AccessControllers\OidcController::class, 'logout']);
 
-// Password reset link request routes
-Route::get('/password/email', [AccessControllers\ForgotPasswordController::class, 'showLinkRequestForm']);
-Route::post('/password/email', [AccessControllers\ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:public');
+// // User invitation routes
+// Route::get('/register/invite/{token}', [AccessControllers\UserInviteController::class, 'showSetPassword'])->middleware('throttle:public');
+// Route::post('/register/invite/{token}', [AccessControllers\UserInviteController::class, 'setPassword'])->middleware('throttle:public');
 
-// Password reset routes
-Route::get('/password/reset/{token}', [AccessControllers\ResetPasswordController::class, 'showResetForm']);
-Route::post('/password/reset', [AccessControllers\ResetPasswordController::class, 'reset'])->middleware('throttle:public');
+// // Password reset link request routes
+// Route::get('/password/email', [AccessControllers\ForgotPasswordController::class, 'showLinkRequestForm']);
+// Route::post('/password/email', [AccessControllers\ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:public');
+
+// // Password reset routes
+// Route::get('/password/reset/{token}', [AccessControllers\ResetPasswordController::class, 'showResetForm']);
+// Route::post('/password/reset', [AccessControllers\ResetPasswordController::class, 'reset'])->middleware('throttle:public');
 
 // Help & Info routes
 Route::view('/help/tinymce', 'help.tinymce');

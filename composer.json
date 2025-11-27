@@ -7,8 +7,15 @@
     ],
     "license": "MIT",
     "type": "project",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "https://github.com/cloudwalkerid/jkd-sso"
+        }
+    ],
     "require": {
         "php": "^8.2.0",
+        "cloudwalkerid/jkd-sso": "dev-master",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",

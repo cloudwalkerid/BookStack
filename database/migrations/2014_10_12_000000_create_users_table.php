@@ -17,15 +17,15 @@ return new class extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('password', 60);
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->nullableTimestamps();
         });
 
         // Create the initial admin user
         DB::table('users')->insert([
-            'name'       => 'Admin',
-            'email'      => 'admin@admin.com',
+            'name'       => 'Budi Setiawan Akkas',
+            'email'      => 'budi.akkas@bps.go.id',
             'password'   => bcrypt('password'),
             'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString(),
