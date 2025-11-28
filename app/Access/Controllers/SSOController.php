@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Exception;
 use JKD\SSO\Client\Provider\Keycloak;
@@ -20,10 +21,14 @@ class SSOController extends Controller
     private $provider;
 
     public function __construct(
-         protected SocialDriverManager $socialDriverManager,
+        protected SocialDriverManager $socialDriverManager,
         protected LoginService $loginService,
     )
     {
+        $this->middleware('guest', ['only' => ['getLogin', 'login']]);
+        $this->middleware('guard:standard,ldap', ['only' => ['login']]);
+        $this->middleware('guard:standard,ldap,oidc', ['only' => ['logout']]);
+
         // $this->middleware('guest')->except('logout');
         $this->provider = new Keycloak([
             'authServerUrl'         => env('SSO_Url'),
@@ -36,14 +41,12 @@ class SSOController extends Controller
 
     public function showLoginForm()
     {
-        LOg::info('asasas');
         return view('auth.login_sso');
     }
 
     public function sso(Request $request)
     {
         if(Auth::check()){
-            // Log::info('auth');
             return redirect('/');
         }
         if (!$request->input('code')) {
@@ -52,9 +55,8 @@ class SSOController extends Controller
             $request->session()->put('oauth2state', $this->provider->getState());
             return Redirect::to($authUrl);
         }  else if (!$request->has('state') || ($request->get('state') !== $request->session()->get('oauth2state'))) {
-
+            
             $request->session()->forget('oauth2state');
-            Log::info("satu");
             return redirect('/login')->withErrors(['user' => 'Terjadi kesalahan']);
 
         } else {
@@ -71,55 +73,38 @@ class SSOController extends Controller
             $data_owner = $this->provider->getResourceOwner($token);
             $data_owner_arr = $data_owner->toArray();
 
-            Log::info($data_owner_arr);
 
-            // $user = User::where('username',  $data_owner_arr['username'])
-            //     ->where('active', 1)
-            //     ->first();
+            if(str_starts_with($data_owner_arr['organisasi'], '7600')){
+                if(User::where('email',  $data_owner_arr['email'])->first()){
+                    $user = User::where('email',  $data_owner_arr['email'])->first();
+                    $user->email = $data_owner_arr['email'];
+                    $user->name = $data_owner_arr['name'];
+                    $user->nip_lama = $data_owner_arr['nip-lama'];
+                    $user->save();
 
-            // if($user) {
-            //     try {
-            //         DB::beginTransaction();
-            //         if (array_key_exists("name",$data_owner_arr) && $data_owner_arr['name'])
-            //         {
-            //             $user->nama = $data_owner_arr['name'];
-            //         }
-            //         if (array_key_exists("nip",$data_owner_arr) && $data_owner_arr['nip'])
-            //         {
-            //             $user->nip_baru = $data_owner_arr['nip'];//nip
-            //         }
-            //         if (array_key_exists("nip-lama",$data_owner_arr) && $data_owner_arr['nip-lama'])
-            //         {
-            //             $user->nip_lama = $data_owner_arr['nip-lama'];//nip-lama
-            //         }
-            //         if (array_key_exists("foto",$data_owner_arr) && $data_owner_arr['foto'])
-            //         {
-            //             $user->bps_photo_url = $data_owner_arr['foto'];//foto
-            //         }
-            //         if (array_key_exists("jabatan",$data_owner_arr) && $data_owner_arr['jabatan'])
-            //         {
-            //             $user->jabatan = $data_owner_arr['jabatan'];
-            //         }
-            //         if (array_key_exists("golongan",$data_owner_arr) && $data_owner_arr['golongan'])
-            //         {
-            //             $user->golonagan = $data_owner_arr['golongan'];
-            //         }
+                    if(Auth::loginUsingId($user->id, true)){
+                        return redirect()->intended(RouteServiceProvider::HOME);
+                    }
+                }else{
+                    $userSlug = Str::slug($data_owner_arr['name']);
+                    while (User::where('slug',  $userSlug)->first()) {
+                        $userSlug = Str::slug($data_owner_arr['name'] .' '. Str::random(4));
+                    }
 
-            //         $user->save();
-            //         DB::commit();
-            //     }catch (Exception $e) {
-            //         DB::rollBack();
-            //         // return abort(403, $e->getMessage());
-            //         Log::info("dua");
-            //         return redirect('/login')->withErrors(['username' => 'User tidak ditemukan']);
-            //     }
-            //     if(Auth::loginUsingId($user->id, true)){
-            //         return redirect()->intended(RouteServiceProvider::HOME);
-            //     }
-            // }else{
-            //     Log::info("tiga");
-            //     return redirect('/login')->withErrors(['username' => 'Anda tidak mempunyai akses untuk aplikasi ini']);
-            // }
+                    $new_user = new User();
+                    $new_user->email = $data_owner_arr['email'];
+                    $new_user->name = $data_owner_arr['name'];
+                    $new_user->nip_lama = $data_owner_arr['nip-lama'];
+                    $new_user->slug = $userSlug;
+                    $new_user->save();
+
+                    if(Auth::loginUsingId($new_user->id, true)){
+                        return redirect()->intended(RouteServiceProvider::HOME);
+                    }
+                }
+            }else{
+                User::where('email',  $data_owner_arr['email'])->delete();
+            }
         }
     }
 

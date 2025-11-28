@@ -70,6 +70,12 @@ class LoginController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
+        if (!str_contains($username, '@bps.go.id')) {
+            throw ValidationException::withMessages([
+                $this->username() => [trans('auth.failed')],
+            ])->redirectTo('/login');
+        }
+
         try {
             if ($this->attemptLogin($request)) {
                 return $this->sendLoginResponse($request);

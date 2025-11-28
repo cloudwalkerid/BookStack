@@ -109,25 +109,26 @@ class UserRepo
      */
     public function updateWithoutActivity(User $user, array $data, bool $manageUsersAllowed): User
     {
-        if (!empty($data['name'])) {
-            $user->name = $data['name'];
-            $this->slugGenerator->regenerateForUser($user);
-        }
+        if (!str_contains($user->email, '@bps.go.id')) {
+            if (!empty($data['name'])) {
+                $user->name = $data['name'];
+                $this->slugGenerator->regenerateForUser($user);
+            }
+            if (!empty($data['email']) && $manageUsersAllowed) {
+                $user->email = $data['email'];
+            }
 
-        if (!empty($data['email']) && $manageUsersAllowed) {
-            $user->email = $data['email'];
-        }
+            if (!empty($data['external_auth_id']) && $manageUsersAllowed) {
+                $user->external_auth_id = $data['external_auth_id'];
+            }
 
-        if (!empty($data['external_auth_id']) && $manageUsersAllowed) {
-            $user->external_auth_id = $data['external_auth_id'];
+            if (!empty($data['password'])) {
+                $user->password = Hash::make($data['password']);
+            }
         }
-
+       
         if (isset($data['roles']) && $manageUsersAllowed) {
             $this->setUserRoles($user, $data['roles']);
-        }
-
-        if (!empty($data['password'])) {
-            $user->password = Hash::make($data['password']);
         }
 
         if (!empty($data['language'])) {

@@ -31,6 +31,8 @@
                     <a href="{{ url('/register') }}">{{ trans('auth.dont_have_account') }}</a>
                 </div>
             @endif
+            
+            <a id="social-login-sso-bps" class="button svg text-center" style="margin-top: 20px" href="{{ route('sso') }}">Login SSO</a>
         </div>
     </div>
 

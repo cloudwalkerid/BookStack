@@ -343,9 +343,13 @@ Route::delete('/mfa/{method}/remove', [AccessControllers\MfaController::class, '
 // Route::post('/register/confirm/accept', [AccessControllers\ConfirmEmailController::class, 'confirm'])->middleware('throttle:public');
 // Route::post('/register', [AccessControllers\RegisterController::class, 'postRegister'])->middleware('throttle:public');
 
-Route::get('/login', [AccessControllers\SSOController::class, 'showLoginForm'])->name('login');
+Route::get('/login', [AccessControllers\LoginController::class, 'getLogin']);
+Route::post('/login', [AccessControllers\LoginController::class, 'login']);
+Route::post('/logout', [AccessControllers\LoginController::class, 'logout']);
+
+// Route::get('/login', [AccessControllers\SSOController::class, 'showLoginForm'])->name('login');
 Route::get('/sso', [AccessControllers\SSOController::class, 'sso'])->name('sso');
-Route::get('/logout', [AccessControllers\SSOController::class, 'logout'])->name('logout');
+// Route::get('/logout', [AccessControllers\SSOController::class, 'logout'])->name('logout');
 
 // // SAML routes
 // Route::post('/saml2/login', [AccessControllers\Saml2Controller::class, 'login']);
