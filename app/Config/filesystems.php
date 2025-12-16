@@ -51,6 +51,13 @@ return [
             'throw'      => true,
         ],
 
+        'local_secure_temp' => [
+            'driver'     => 'local',
+            'root'       => storage_path('uploads/temp/'),
+            'serve'      => false,
+            'throw'      => true,
+        ],
+
         's3' => [
             'driver'                  => 's3',
             'key'                     => env('STORAGE_S3_KEY', 'your-key'),
